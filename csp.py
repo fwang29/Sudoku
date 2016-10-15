@@ -1,4 +1,5 @@
 import sys
+import copy
 
 # python csp.py bank1.txt grid1.txt
 # python csp.py testbank.txt testgrid.txt
@@ -6,23 +7,14 @@ import sys
 if __name__ == '__main__':
     # Parse input files, word bank into a 1D array and grid into a 2D array
     word_bank_file, grid_file = sys.argv[1:3]
-
     word_bank = []
-    grid = []
-    # grid = [["_" for i in range(9)] for j in range(9)]
+    grid = []    
 
+# parse word bank file
     file = open(word_bank_file)    
     for line in file:
         word_bank.append(line.split('\n')[0])
     file.close()
-
-    # file = open(grid_file)
-    # x = y = 0
-    # for line in file:
-    #     for x in range(0,9):
-    #         grid[y][x] = line[x]
-    #     y += 1
-    # file.close()
 
 # parse grid file
     with open(grid_file, 'r') as f:
@@ -46,17 +38,23 @@ if __name__ == '__main__':
 
 
 
-def select_var(word_bank):
+def select_word(word_bank):
     return word_bank.pop()
 
 
 
 # return a list of possible assignments in the format
-# each possible assignment is a list with [0]=Orientation(H/V), [1]=Row#, [2]=Col#, [3]=WORD
+# each possible assignment is a list with [0]=Orientation(H/V), [1]=Row# y, [2]=Col# x, [3]=WORD
 def ordered_values(word, grid, assignment):
     # traverse all possible start coordinate in the grid for the word
+    print('\r')
+    print('ordered_values')
+    # print('ordered_values word', word)
+    for line in grid:
+        print(line)
+    print('\r')
+    
     values = []
-    print('ordered_values word', word)
     for y in xrange(0,len(grid)):
         for x in xrange(0,len(grid[0])):
             # Horizontal    
@@ -109,7 +107,9 @@ def ordered_values(word, grid, assignment):
 
             # length out of bound, directly skip        
             else:
-                print('skip V', y, x, len(word))                  
+                print('skip V', y, x, len(word))   
+
+        print('\r')               
 
     return values
 
@@ -119,29 +119,48 @@ def check_consistency(value, grid, assignment):
 
 
 def recur_backtracking(word_bank, grid, assignment):
+    print('\r')
+    print('recur_backtracking')
     if word_bank == []:
+        print('FINISH! word_bank is Empty!')
         return True
     tmp_word_bank = list(word_bank)
-    tmp_grid = list(grid)
-    tmp_assignment = list(assignment) 
+    # tmp_grid = copy.deepcopy(grid)
+    # tmp_assignment = list(assignment) 
 
-    var = select_var(tmp_word_bank)
-    print('var', var)
-    print('tmp_word_bank', tmp_word_bank)
-    print('word_bank', word_bank)
+    word = select_word(tmp_word_bank)
+    print('word', word)
+    # print('tmp_word_bank', tmp_word_bank)
+    # print('word_bank', word_bank)
+    
+    values = ordered_values(word, grid, assignment)
+    print('assigned', assignment)
+    print('possible values', values)
 
-    values = ordered_values(var, grid, assignment)
-    print('values', values)
     for value in values:
         # if consistent, add to assignment
         if check_consistency(value, grid, assignment):
+            print('assignment append', assignment, value)
             assignment.append(value)
-            # apply assignment onto grid
-            child_assignment = recur_backtracking(tmp_word_bank, grid, assignment)
+            # deep copy grid, and apply assignment on tmp_grid
+            tmp_grid = copy.deepcopy(grid)
+            ori = value[0]
+            tmpY = value[1]
+            tmpX = value[2]
+            for char in word:
+                tmp_grid[tmpY][tmpX] = char
+                if ori == 'H':
+                    tmpX += 1
+                else:
+                    tmpY += 1
 
-            if child_assignment != False:
+            print('\r')
+            print('Recursion')
+            if recur_backtracking(tmp_word_bank, tmp_grid, assignment) == True:
+                print('recur_backtracking is True!')
                 return True
             else:
+                print('assignment pop', assignment)
                 assignment.pop()
 
     return False
@@ -149,17 +168,8 @@ def recur_backtracking(word_bank, grid, assignment):
 
 def csp(word_bank, grid):
     assignment = []
-    
-    # success = []
-    # for x in xrange(0,len(word_bank)):
-    #     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~shuffle word_bank', word_bank)
-    #     success.append(recur_backtracking(word_bank, grid, assignment))
-    #     tmp = word_bank.pop()
-    #     word_bank.insert(0,tmp)
-
     success = recur_backtracking(word_bank, grid, assignment)
     print('success?', success)
-
     return assignment
 
 
