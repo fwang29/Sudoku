@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 import copy
 import time
@@ -149,11 +148,10 @@ def check_consistency(value, grid):
 
     return True
 
-expanded_node = 0
+
 def recur_backtracking(word_bank, grid, assignment):
     # print('\r')
     # print('recur_backtracking')
-    # base case, word bank empty & all words used
     if word_bank == []:        
         for y in xrange(0,len(grid)):
             for x in xrange(0,len(grid[0])):
@@ -167,7 +165,7 @@ def recur_backtracking(word_bank, grid, assignment):
     # tmp_assignment = list(assignment) 
 
     word = select_word(tmp_word_bank)
-    # print('word', word)
+    print('word', word)
     # print('tmp_word_bank', tmp_word_bank)
     # print('word_bank', word_bank)
     
@@ -189,9 +187,8 @@ def recur_backtracking(word_bank, grid, assignment):
             else:
                 tmpY += 1
         
-        print("Filled Grid:")
         for line in tmp_grid:
-            print(''.join(line))
+            print(line)
         print('\r')
 
         # if consistent, add to assignment
@@ -201,8 +198,6 @@ def recur_backtracking(word_bank, grid, assignment):
 
             # print('\r')
             # print('Recursion')
-            global expanded_node
-            expanded_node += 1
             if recur_backtracking(tmp_word_bank, tmp_grid, assignment) == True:
                 # print('recur_backtracking is True!')
                 # print('\r')
@@ -218,48 +213,36 @@ def recur_backtracking(word_bank, grid, assignment):
 def csp(word_bank, grid):
     assignment = []
     success = recur_backtracking(word_bank, grid, assignment)
-    # print('success?', success)
+    print('success?', success)
     return assignment
 
 
 
-def main():
-    if len(sys.argv) != 3:
-      print('Usage: python %s bank1.txt grid1.txt' % (sys.argv[0]))
-      exit()
 
-    # start = time.time()
+start = time.time()
 
-    # sort word_bank by length ascending
-    word_bank.sort(key = len)
-    print(len(word_bank))
-    for word in word_bank:
-        print(word)
+# sort word_bank by length ascending
+word_bank.sort(key = len)
+print(len(word_bank))
+for word in word_bank:
+    print(word)
 
-    print(len(grid))
-    for line in grid:
-        print(line)
+print(len(grid))
+for line in grid:
+    print(line)
 
-    
-    assignment = csp(word_bank, grid)
-    print('Assignment:')
-    for l in assignment:
-        print(l[0], l[1], l[2], ":", l[3], end="")
-        print()
+assignment = csp(word_bank, grid)
+print('assignment', assignment)
 
-    print()
-    print("Expanded_node:", expanded_node)
-    print()
-
-    # end = time.time()
-    # print('execution time in seconds', end - start)
+end = time.time()
+print('execution time in seconds', end - start)
 
 
 
-if __name__ == '__main__':
-    start_time = time.time()
-    main()
-    print("--- %s seconds ---" % (time.time() - start_time))
+
+
+
+
 
 
 
